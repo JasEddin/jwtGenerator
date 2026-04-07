@@ -32,9 +32,9 @@ namespace jwtGenerator.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] TokenRequest request)
         {
-        
+            var result = await _tokenService.GenerateToken(request);
 
-            return Ok();
+            return Ok(result);
 
         }
 

@@ -29,6 +29,10 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddOpenApi();
+
+builder.Services.AddHttpClient<TokenService>();
+
+
 var app = builder.Build();
  
  
