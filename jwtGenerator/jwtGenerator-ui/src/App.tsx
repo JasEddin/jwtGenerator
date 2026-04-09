@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { generateToken } from "./jwtService";
 import "./App.css";
+import { Copy } from "lucide-react";
 
 
 export type TokenResponse = {
@@ -37,16 +38,16 @@ function App() {
     }
   };
 
-function prettierToken(token: string, start = 5, end = 5): string {
-  if (!token) return "";
+  function prettierToken(token: string, start = 5, end = 10): string {
+    if (!token) return "";
 
-  if (token.length <= start + end) return token;
+    if (token.length <= start + end) return token;
 
-  const first = token.slice(0, start);
-  const last = token.slice(-end);
+    const first = token.slice(0, start);
+    const last = token.slice(-end);
 
-  return `${first} ••••••••••• ${last}`;
-}
+    return `${first} ••••••••••• ${last}`;
+  }
 
   return (
     <div className="app">
@@ -76,33 +77,40 @@ function prettierToken(token: string, start = 5, end = 5): string {
             Generate token
           </button>
           <h3>Response:</h3>
-          <p> access token: {result ? prettierToken(result.access_token) : "No token generated"}
-          {result && (
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(result.access_token);
-                }}
-              >
-                {/* Copy Token  
-                the copy emoji */}
-                  📋
-              </button>)}
-          </p>
-          <p> scope: {result ? result.scope : "N/A"}</p>
-          <p> token type: {result ? result.token_type : "N/A"}</p>
-          <p> expires in: {result ? result.expires_in : "N/A"} seconds</p>
 
+          <div className="embedded-respons">
+            <p className="token-line">
 
+              <strong> access token: </strong>
+              <span className="token-text">
+                {result ? prettierToken(result.access_token) : "No token generated"}
+              </span>
+
+              {result && (
+                <button
+                  className="copy-icon-btn"
+                  onClick={() => navigator.clipboard.writeText(result.access_token)}
+                >
+                  <Copy size={18} strokeWidth={1.5} />
+                </button>
+              )}
+            </p>
+
+            <p>
+              <strong>scope:</strong> {result ? result.scope : "N/A"}</p>
+            <p> <strong>token type:</strong> {result ? result.token_type : "N/A"}</p>
+            <p> <strong>expires in:</strong> {result ? result.expires_in : "N/A"} seconds</p>
+          </div>
           {result && (
             <>
               <h3>Access Token:</h3>
               <textarea
-                style={{ width: "100%", height: 160 }}
+                style={{ width: "100%", height: 180 }}
                 value={result.access_token}
                 readOnly
               />
 
-            
+
             </>
           )}
         </div>

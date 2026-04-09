@@ -115,3 +115,26 @@ textarea {
 .btn-secondary:hover {
   background-color: #c9c1b8;
 }
+
+.copy-icon-btn {
+  margin-left: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #9ca3af; /* soft grey */
+  display: inline-flex;
+  align-items: center;
+}
+
+.copy-icon-btn:hover {
+  color: #374151; /* darker on hover */
+}
+
+
+.embedded-respons {
+  margin-top: 20px;
+  background: #e9eaeb;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 13px;
+}
