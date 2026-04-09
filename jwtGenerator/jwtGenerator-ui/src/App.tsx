@@ -27,6 +27,7 @@ function App() {
   const [env, setEnv] = useState("ct2" as Environment);
   const [pnr, setPnr] = useState("199001011234");
   const [result, setResult] = useState<TokenResponse | null>(null);
+  const [isCopied, setIsCopied] = useState(false);
 
   const handleGenerate = async () => {
     try {
@@ -37,15 +38,12 @@ function App() {
       setResult(null);
     }
   };
-
   function prettierToken(token: string, start = 5, end = 10): string {
     if (!token) return "";
 
     if (token.length <= start + end) return token;
-
     const first = token.slice(0, start);
     const last = token.slice(-end);
-
     return `${first} ••••••••••• ${last}`;
   }
 
@@ -54,7 +52,6 @@ function App() {
       <div className="container">
         <div style={{ padding: 20 }}>
           <h2>Token Generator</h2>
-
           <label>Environment: </label>
           {/* dropdown for environment selection */}
           <select value={env} onChange={(e) => setEnv(e.target.value as Environment)}>
@@ -64,9 +61,7 @@ function App() {
               </option>
             ))}
           </select>
-
           <br /><br />
-
           <label> Personnummer : </label>
           <input
             value={pnr}
@@ -77,27 +72,26 @@ function App() {
             Generate token
           </button>
           <h3>Response:</h3>
-
           <div className="embedded-respons">
             <p className="token-line">
-
               <strong> access token: </strong>
               <span className="token-text">
                 {result ? prettierToken(result.access_token) : "No token generated"}
               </span>
-
               {result && (
                 <button
                   className="copy-icon-btn"
-                  onClick={() => navigator.clipboard.writeText(result.access_token)}
+                  onClick={() => {
+                    navigator.clipboard.writeText(result.access_token);
+                    setIsCopied(true);
+                    setTimeout(() => setIsCopied(false), 2000);
+                  }}
                 >
-                  <Copy size={18} strokeWidth={1.5} />
+                  {isCopied ? " ✔ copied" : <Copy size={18} strokeWidth={1.5} />}
                 </button>
               )}
             </p>
-
-            <p>
-              <strong>scope:</strong> {result ? result.scope : "N/A"}</p>
+            <p><strong>scope:</strong> {result ? result.scope : "N/A"}</p>
             <p> <strong>token type:</strong> {result ? result.token_type : "N/A"}</p>
             <p> <strong>expires in:</strong> {result ? result.expires_in : "N/A"} seconds</p>
           </div>
@@ -109,8 +103,6 @@ function App() {
                 value={result.access_token}
                 readOnly
               />
-
-
             </>
           )}
         </div>
@@ -118,7 +110,5 @@ function App() {
     </div>
   );
 }
-
-
 
 export default App
