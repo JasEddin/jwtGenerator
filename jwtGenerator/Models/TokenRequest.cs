@@ -9,4 +9,4 @@ public class TokenRequest
     public string Sub { get; set; } = "";
     public string NationalId { get; set; } = "";
     public string Scope { get; set; } = "account_read system_read";
-}§
+}
