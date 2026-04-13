@@ -1,18 +1,20 @@
  
 import axios from "axios";
 
-export const generateToken = async (pnr:string, env:string) => {
+export const generateToken = async (pnr:string, env:string, preset: "individual" | "officer" | "system") => {
 
 const req=JSON.parse(`{
+  "preset": "individual",
+  "nationalid": "${pnr}",
+  "environment": "${env}",
+  "parameters": {
   "clientid": "i_web_individual_short",
   "client_secret": "mysecret",
-  "preset": "individual",
   "grant_type": "client_credentials",
   "sub": "${pnr}",
-  "NationalId": "${pnr}",
-  "scope": "account_read system_read",
-  "environment": "${env}"
-}`);
+  "scope": "account_read system_read"
+    }
+  }`);
   const response = await axios.post("https://localhost:7050/api/JwtGenerator", req);
   return response.data;
 };

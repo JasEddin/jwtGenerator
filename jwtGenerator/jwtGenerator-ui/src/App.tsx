@@ -28,10 +28,10 @@ function App() {
   const [pnr, setPnr] = useState("199001011234");
   const [result, setResult] = useState<TokenResponse | null>(null);
   const [isCopied, setIsCopied] = useState(false);
+  const [preset, setPreset] = useState<"individual" | "officer" | "system">("individual");
 
   const handleGenerate = async () => {
     try {
-
       const res = await generateToken(pnr, env);
       setResult(res);
     } catch (err) {
@@ -53,7 +53,6 @@ function App() {
         <div style={{ padding: 20 }}>
           <h2>Token Generator</h2>
           <label>Environment: </label>
-          {/* dropdown for environment selection */}
           <select value={env} onChange={(e) => setEnv(e.target.value as Environment)}>
             {Object.values(Environment).map((envOption) => (
               <option key={envOption} value={envOption}>
@@ -61,8 +60,14 @@ function App() {
               </option>
             ))}
           </select>
+          <label style={{ marginLeft: 20 }}>Preset: </label>
+          <select value={preset} onChange={(e) => setPreset(e.target.value as "individual" | "officer" | "system")}>
+            <option value="individual">Kund</option>
+            <option value="officer">Handläggare</option>
+            <option value="system">System</option>
+          </select>
           <br /><br />
-          <label> Personnummer : </label>
+          <label>Personnummer (ÅÅÅÅMMDDXXXX) </label>
           <input
             value={pnr}
             onChange={(e) => setPnr(e.target.value)}

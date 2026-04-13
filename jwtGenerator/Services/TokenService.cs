@@ -1,4 +1,5 @@
 ﻿// Services/TokenService.cs
+using jwtGenerator.Helpers;
 using jwtGenerator.Services;
 
 public class TokenService
@@ -13,19 +14,16 @@ public class TokenService
     public async Task<string> GenerateToken(TokenRequest request)
     {
         var url = EnvironmentService.GetUrl(request.Environment);
+ 
+        var formData = new Dictionary<string, string> {
+        { "clientid", "i_web_individual_short" },
+        { "client_secret", "mysecret" },
+        { "grant_type", "client_credentials" },
+        { "client_id", "i_mock_short" }};
 
-        var formData = new Dictionary<string, string>
-        {
-            { "clientid", "i_web_individual_short" },
-            { "client_secret", "mysecret" },
-            { "preset", request.Preset },
-            { "grant_type", "client_credentials" },
-            { "sub", request.Sub },
-            { "national_id", request.NationalId },
-            { "scope", request.Scope },
-            { "trust_level", "Medium" },
-            { "client_id", "i_mock_short" }
-        };
+        request.Parameters.ToList().ForEach(kv => formData[kv.Key] = kv.Value);
+
+        PresetHelper.GetPreset(request.Preset).ToList().ForEach(kv => formData[kv.Key] = kv.Value);
 
         var content = new FormUrlEncodedContent(formData);
 
