@@ -3,6 +3,7 @@ import { useState } from "react";
 import { generateToken } from "./jwtService";
 import "./App.css";
 import { Copy } from "lucide-react";
+import { isValidPnr } from "./validator";
 
 
 export type TokenResponse = {
@@ -25,22 +26,29 @@ enum Environment {
 
 function App() {
   const [env, setEnv] = useState("ct2" as Environment);
-  const [pnr, setPnr] = useState("199001011234");
+  const [pnr, setPnr] = useState("199001012070");
   const [result, setResult] = useState<TokenResponse | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const [preset, setPreset] = useState<"individual" | "officer" | "system">("individual");
+  const [error, setError] = useState("");
+
 
   const handleGenerate = async () => {
     try {
-      const res = await generateToken(pnr, env);
-      setResult(res);
+      if (!isValidPnr(pnr)) {
+        setError("Ogiltigt personnummer");
+      }
+      else {
+        const res = await generateToken(pnr, env, preset);
+        setResult(res);
+        setError("");
+      }
     } catch (err) {
       setResult(null);
     }
   };
   function prettierToken(token: string, start = 5, end = 10): string {
     if (!token) return "";
-
     if (token.length <= start + end) return token;
     const first = token.slice(0, start);
     const last = token.slice(-end);
@@ -60,7 +68,7 @@ function App() {
               </option>
             ))}
           </select>
-          <label style={{ marginLeft: 20 }}>Preset: </label>
+          <label >Preset: </label>
           <select value={preset} onChange={(e) => setPreset(e.target.value as "individual" | "officer" | "system")}>
             <option value="individual">Kund</option>
             <option value="officer">Handläggare</option>
@@ -71,7 +79,9 @@ function App() {
           <input
             value={pnr}
             onChange={(e) => setPnr(e.target.value)}
+            style={{ width: "93%", marginBottom: 0 }}
           />
+          {error && <p style={{ color: "red", marginTop: 0 }}>{error}</p>}
           <br /><br />
           <button className="btn-primary" onClick={handleGenerate}>
             Generate token
