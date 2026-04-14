@@ -28,20 +28,22 @@ function App() {
   const [env, setEnv] = useState("ct2" as Environment);
   const [pnr, setPnr] = useState("199001012070");
   const [result, setResult] = useState<TokenResponse | null>(null);
+  const [actAs, setActAs] = useState("");
+  const [actAsPnr, setActAsPnr] = useState("");
   const [isCopied, setIsCopied] = useState(false);
   const [preset, setPreset] = useState<"individual" | "officer" | "system">("individual");
-  const [error, setError] = useState("");
+  const [hasError, setHasError] = useState(false);
 
 
   const handleGenerate = async () => {
     try {
-      if (!isValidPnr(pnr)) {
-        setError("Ogiltigt personnummer");
+      if (!isValidPnr(pnr) || (preset === "officer" && actAs === "customer" && !isValidPnr(actAsPnr))) {  
+        setHasError(true);
       }
       else {
-        const res = await generateToken(pnr, env, preset);
+        const res = await generateToken(pnr, env, preset, actAs === "customer" ? actAsPnr : undefined);
         setResult(res);
-        setError("");
+        setHasError(false);
       }
     } catch (err) {
       setResult(null);
@@ -60,6 +62,13 @@ function App() {
       <div className="container">
         <div style={{ padding: 20 }}>
           <h2>Token Generator</h2>
+          <label>Personnummer (ÅÅÅÅMMDDXXXX) </label>
+          <input
+            value={pnr}
+            onChange={(e) => setPnr(e.target.value)}
+            style={{ width: "93%", marginBottom: 0 }}
+          />
+          {hasError && !isValidPnr(pnr) && <p style={{ color: "red", marginTop: 0 }}>Ogiltigt personnummer</p>}
           <label>Environment: </label>
           <select value={env} onChange={(e) => setEnv(e.target.value as Environment)}>
             {Object.values(Environment).map((envOption) => (
@@ -74,15 +83,23 @@ function App() {
             <option value="officer">Handläggare</option>
             <option value="system">System</option>
           </select>
-          <br /><br />
-          <label>Personnummer (ÅÅÅÅMMDDXXXX) </label>
-          <input
-            value={pnr}
-            onChange={(e) => setPnr(e.target.value)}
-            style={{ width: "93%", marginBottom: 0 }}
-          />
-          {error && <p style={{ color: "red", marginTop: 0 }}>{error}</p>}
-          <br /><br />
+          {preset === "officer" && (
+            <label style={{ marginInline: 0 }}>
+              som en kund
+              <input style={{ width: "9%" }} type="checkbox" id="asdfs" onChange={(e) => setActAs(e.target.checked ? "customer" : "")} />
+            </label>
+          )}
+          {preset === "officer" && actAs === "customer" &&
+            <>
+              <label>Ange personnummer för kunden</label>
+              <input
+                value={actAsPnr}
+                onChange={(e) => setActAsPnr(e.target.value)}
+                style={{ width: "93%", marginBottom: 0 }}
+              />
+              {hasError && !isValidPnr(actAsPnr) && <p style={{ color: "red", marginTop: 0 }}>Ogiltigt personnummer för kunden</p>}
+            </>
+          }
           <button className="btn-primary" onClick={handleGenerate}>
             Generate token
           </button>

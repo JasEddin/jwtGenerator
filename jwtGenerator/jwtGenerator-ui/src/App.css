@@ -61,6 +61,7 @@ select:focus {
 .btn-primary {
   width: 100%;
   padding: 12px;
+  margin-top: 40px;
   background-color: #008763;
   color: white;
   border: none;
