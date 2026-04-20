@@ -1,5 +1,4 @@
-﻿// Services/TokenService.cs
-using jwtGenerator.Helpers;
+﻿using jwtGenerator.Helpers;
 using jwtGenerator.Services;
 
 public class TokenService
@@ -23,7 +22,7 @@ public class TokenService
 
         request.Parameters.ToList().ForEach(kv => formData[kv.Key] = kv.Value);
 
-        PresetHelper.GetPreset(request.Preset).ToList().ForEach(kv => formData[kv.Key] = kv.Value);
+        PresetHelper.GetPreset(request.Preset, request.ActAsPnr ).ToList().ForEach(kv => formData[kv.Key] = kv.Value);
 
         var content = new FormUrlEncodedContent(formData);
 
