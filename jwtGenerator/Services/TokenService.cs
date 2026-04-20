@@ -13,14 +13,14 @@ public class TokenService
     public async Task<string> GenerateToken(TokenRequest request)
     {
         var url = EnvironmentService.GetUrl(request.Environment);
- 
+
         var formData = new Dictionary<string, string> {
         { "clientid", "i_web_individual_short" },
         { "client_secret", "mysecret" },
         { "grant_type", "client_credentials" },
         { "client_id", "i_mock_short" }};
 
-        PresetHelper.GetPreset(request.Preset, request.ActAsPnr )
+        PresetHelper.GetPreset(request.Preset, request.ActAsPnr)
             .ToList()
             .ForEach(kv => formData[kv.Key] = kv.Value);
 
@@ -29,6 +29,11 @@ public class TokenService
         var content = new FormUrlEncodedContent(formData);
 
         var response = await _httpClient.PostAsync(url, content);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception($"Error generating token from Curity: {response.ReasonPhrase}");
+        }
 
         var result = await response.Content.ReadAsStringAsync();
 
