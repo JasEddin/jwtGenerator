@@ -20,9 +20,11 @@ public class TokenService
         { "grant_type", "client_credentials" },
         { "client_id", "i_mock_short" }};
 
-        request.Parameters.ToList().ForEach(kv => formData[kv.Key] = kv.Value);
+        PresetHelper.GetPreset(request.Preset, request.ActAsPnr )
+            .ToList()
+            .ForEach(kv => formData[kv.Key] = kv.Value);
 
-        PresetHelper.GetPreset(request.Preset, request.ActAsPnr ).ToList().ForEach(kv => formData[kv.Key] = kv.Value);
+        request.Parameters.ToList().ForEach(kv => formData[kv.Key] = kv.Value);
 
         var content = new FormUrlEncodedContent(formData);
 
