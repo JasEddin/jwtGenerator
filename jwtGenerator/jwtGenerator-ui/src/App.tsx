@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { generateToken } from "./jwtService";
 import "./App.css";
 import { Copy, CircleFadingPlus, Trash2Icon } from "lucide-react";
@@ -81,7 +81,7 @@ function App() {
             [p.name, p.value]
           ));
 
-      const res = await generateToken(pnr, env, preset, extraPatameters,  officerAsCustomerPnr );
+      const res = await generateToken(pnr, env, preset, extraPatameters, officerAsCustomerPnr);
       setResult(res);
       setHasError(false);
     }
@@ -152,58 +152,52 @@ function App() {
               </thead>
               <tbody>
                 {parameters.map((param) =>
-                  <React.Fragment key={param.id}>
-                    <tr key={param.id}>
-                      <td>
-                        <input type="checkbox"
-                          checked={param.enabled}
-                          onChange={
-                            () =>
-                              setParameters((prev) => prev.map(p =>
-                                p.id == param.id ? { ...p, enabled: !p.enabled } : p
-                              ))
-                          }
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="text"
-                          value={param.name}
-                          placeholder="name"
-                          onChange={(e) => {
-                            updateParameter(param.id, "name", e.target.value)
-                          }
-                          }
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="text"
-                          value={param.value}
-                          placeholder="value"
-                          onChange={(e) => {
-                            updateParameter(param.id, "value", e.target.value)
-                          }
-                          }
-                        />
-                      </td>
-                      <td>
-                        <Trash2Icon color="red" size={18} onClick={() => {
-                          removeParameter(param.id)
-                        }} />
-                      </td>
-                    </tr>
-                    <tr>
-                      {hasError && param.enabled &&
-                        <>
-                          <td></td>
-                          <td> {!param.name && <p style={{ color: "red", marginTop: 0 }}> Fill this </p>}</td>
-                          <td> {!param.value && <p style={{ color: "red", marginTop: 0 }}> Fill this </p>}</td>
-                          <td></td>
-                        </>
-                      }
-                    </tr>
-                  </React.Fragment>
+                  <tr key={param.id} className="param-row">
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={param.enabled}
+                        onChange={() =>
+                          setParameters(prev =>
+                            prev.map(p =>
+                              p.id === param.id ? { ...p, enabled: !p.enabled } : p
+                            )
+                          )
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        className={`input ${hasError && param.enabled && !param.name ? "error" : ""}`}
+                        type="text"
+                        value={param.name}
+                        placeholder="name"
+                        onChange={(e) => updateParameter(param.id, "name", e.target.value)}
+                      />
+                      {hasError && param.enabled && !param.name && (
+                        <span className="error-text">Required</span>
+                      )}
+                    </td>
+                    <td>
+                      <input
+                        className={`input ${hasError && param.enabled && !param.value ? "error" : ""}`}
+                        type="text"
+                        value={param.value}
+                        placeholder="value"
+                        onChange={(e) => updateParameter(param.id, "value", e.target.value)}
+                      />
+                      {hasError && param.enabled && !param.value && (
+                        <span className="error-text">Required</span>
+                      )}
+                    </td>
+                    <td>
+                      <Trash2Icon
+                        className="delete-icon"
+                        size={18}
+                        onClick={() => removeParameter(param.id)}
+                      />
+                    </td>
+                  </tr>
                 )}
               </tbody>
             </table>
