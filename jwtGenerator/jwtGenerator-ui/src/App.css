@@ -117,6 +117,15 @@ textarea {
   background-color: #c9c1b8;
 }
 
+.btn-additional {
+  padding: 5px;
+  margin-top: -7%;
+  margin-bottom: -2%;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
 .copy-icon-btn {
   margin-left: 8px;
   border: none;

@@ -2,9 +2,8 @@
 import { useState } from "react";
 import { generateToken } from "./jwtService";
 import "./App.css";
-import { Copy } from "lucide-react";
+import { Copy, CircleFadingPlus, Trash2Icon } from "lucide-react";
 import { isValidPnr } from "./validator";
-
 
 export type TokenResponse = {
   access_token: string;
@@ -23,6 +22,12 @@ enum Environment {
   U5 = "u5",
   Lab = "lab"
 }
+type Parameter = {
+  id: number;
+  name: string;
+  value: string;
+  enabled: boolean;
+}
 
 function App() {
   const [env, setEnv] = useState("ct2" as Environment);
@@ -33,15 +38,42 @@ function App() {
   const [isCopied, setIsCopied] = useState(false);
   const [preset, setPreset] = useState<"individual" | "officer" | "system">("individual");
   const [hasError, setHasError] = useState(false);
+  const [parameters, setParameters] = useState<Parameter[]>([]);
 
+  const addParameter = () => {
+    setParameters(
+      (prev) => [
+        ...prev, { id: Date.now(), name: "", value: "", enabled: true }
+      ]
+    )
+  }
+
+  const removeParameter = (id: number) => {
+    setParameters(
+      (prev) => prev.filter(x => x.id != id)
+    )
+  }
+
+  const updateParameter = (id: number, field: "value" | "name", newValue: string) => {
+    setParameters(
+      (prev) => prev.map(x =>
+        x.id == id ? { ...x, [field]: newValue } : x
+      )
+    )
+  }
 
   const handleGenerate = async () => {
     try {
-      if (!isValidPnr(pnr) || (preset === "officer" && actAs === "customer" && !isValidPnr(actAsPnr))) {  
+      if (!isValidPnr(pnr) || (preset === "officer" && actAs === "customer" && !isValidPnr(actAsPnr))) {
         setHasError(true);
       }
       else {
-        const res = await generateToken(pnr, env, preset, actAs === "customer" ? actAsPnr : undefined);
+        const extraPatameters: Record<string, string> = {};
+        parameters
+          .filter(p => p.enabled)
+          .forEach((p) => { extraPatameters[p.name] = p.value }
+          )
+        const res = await generateToken(pnr, env, preset, extraPatameters, actAs === "customer" ? actAsPnr : undefined);
         setResult(res);
         setHasError(false);
       }
@@ -100,6 +132,70 @@ function App() {
               {hasError && !isValidPnr(actAsPnr) && <p style={{ color: "red", marginTop: 0 }}>Ogiltigt personnummer för kunden</p>}
             </>
           }
+          <hr />
+          {
+            <table >
+              <thead>
+                <tr>
+                  <th>✓</th>
+                  <th>Name</th>
+                  <th>Value</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {parameters.map((param) =>
+
+                  <tr key={param.id}>
+                    <td>
+                      <input type="checkbox"
+                        checked={param.enabled}
+                        onChange={
+                          () =>
+                            setParameters((prev) => prev.map(p =>
+                              p.id == param.id ? { ...p, enabled: !p.enabled } : p
+                            ))
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        placeholder="name"
+                        onChange={(e) => {
+                          updateParameter(param.id, "name", e.target.value)
+                        }
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        placeholder="value"
+                        onChange={(e) => {
+                          updateParameter(param.id, "value", e.target.value)
+                        }
+                        }
+                      >
+                      </input>
+                    </td>
+                    <td>
+                      <Trash2Icon color="red" size={18} onClick={() => {
+                        removeParameter(param.id)
+                      }} />
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          }
+
+          <label>Lägg till valfri parameter:
+            <CircleFadingPlus className="btn-additional" color="green" size={20} onClick={() => {
+              addParameter()
+            }}
+            ></CircleFadingPlus>
+          </label>
           <button className="btn-primary" onClick={handleGenerate}>
             Generate token
           </button>
