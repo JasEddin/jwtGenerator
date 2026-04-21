@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { generateToken } from "./jwtService";
 import "./App.css";
 import { Copy, CircleFadingPlus, Trash2Icon } from "lucide-react";
@@ -33,8 +33,8 @@ function App() {
   const [env, setEnv] = useState("ct2" as Environment);
   const [pnr, setPnr] = useState("199001012070");
   const [result, setResult] = useState<TokenResponse | null>(null);
-  const [actAs, setActAs] = useState("");
-  const [actAsPnr, setActAsPnr] = useState("");
+  const [officerActAsCustomer, setOfficerActAsCustomer] = useState(false);
+  const [officerAsCustomerPnr, setOfficerAsCustomerPnr] = useState("");
   const [isCopied, setIsCopied] = useState(false);
   const [preset, setPreset] = useState<"individual" | "officer" | "system">("individual");
   const [hasError, setHasError] = useState(false);
@@ -58,28 +58,30 @@ function App() {
   const updateParameter = (id: number, field: "value" | "name", newValue: string) => {
     setParameters(
       (prev) => prev.map(x =>
-        x.id == id ? { ...x, [field]: newValue } : x
+        x.id === id ? { ...x, [field]: newValue } : x
       )
     )
   }
 
-  const checkIfThereIsError = () => {
-    if (!isValidPnr(pnr) || (preset === "officer" && actAs === "customer" && !isValidPnr(actAsPnr))) {
+  const hasGeneralError = () => {
+    debugger
+    const hasInvalidParam = parameters.some(x => x.enabled && (!x.name || !x.value));
+    if (hasInvalidParam || !isValidPnr(pnr) || (preset === "officer" && officerActAsCustomer && !isValidPnr(officerAsCustomerPnr))) {
       return true
     }
-    const x = parameters.filter(x => x.enabled).find(x => !x.name || !x.value);
-    return x ? true : false
+    return false;
   }
 
   const handleGenerate = async () => {
+    if (!hasGeneralError()) {
+      const extraPatameters: Record<string, string> = Object.fromEntries(
+        parameters
+          .filter(p => p.enabled)
+          .map(p =>
+            [p.name, p.value]
+          ));
 
-    if (!checkIfThereIsError()) {
-      const extraPatameters: Record<string, string> = {};
-      parameters
-        .filter(p => p.enabled)
-        .forEach((p) => { extraPatameters[p.name] = p.value }
-        )
-      const res = await generateToken(pnr, env, preset, extraPatameters, actAs === "customer" ? actAsPnr : undefined);
+      const res = await generateToken(pnr, env, preset, extraPatameters,  officerAsCustomerPnr );
       setResult(res);
       setHasError(false);
     }
@@ -123,18 +125,18 @@ function App() {
           {preset === "officer" && (
             <label style={{ marginInline: 0 }}>
               som en kund
-              <input style={{ width: "9%" }} type="checkbox" id="asdfs" onChange={(e) => setActAs(e.target.checked ? "customer" : "")} />
+              <input style={{ width: "9%" }} type="checkbox" id="asdfs" onChange={(e) => setOfficerActAsCustomer(e.target.checked)} />
             </label>
           )}
-          {preset === "officer" && actAs === "customer" &&
+          {preset === "officer" && officerActAsCustomer &&
             <>
               <label>Ange personnummer för kunden</label>
               <input
-                value={actAsPnr}
-                onChange={(e) => setActAsPnr(e.target.value)}
+                value={officerAsCustomerPnr}
+                onChange={(e) => setOfficerAsCustomerPnr(e.target.value)}
                 style={{ width: "93%", marginBottom: 0 }}
               />
-              {hasError && !isValidPnr(actAsPnr) && <p style={{ color: "red", marginTop: 0 }}>Ogiltigt personnummer för kunden</p>}
+              {hasError && !isValidPnr(officerAsCustomerPnr) && <p style={{ color: "red", marginTop: 0 }}>Ogiltigt personnummer för kunden</p>}
             </>
           }
           <hr />
@@ -150,7 +152,7 @@ function App() {
               </thead>
               <tbody>
                 {parameters.map((param) =>
-                  <>
+                  <React.Fragment key={param.id}>
                     <tr key={param.id}>
                       <td>
                         <input type="checkbox"
@@ -166,6 +168,7 @@ function App() {
                       <td>
                         <input
                           type="text"
+                          value={param.name}
                           placeholder="name"
                           onChange={(e) => {
                             updateParameter(param.id, "name", e.target.value)
@@ -176,13 +179,13 @@ function App() {
                       <td>
                         <input
                           type="text"
+                          value={param.value}
                           placeholder="value"
                           onChange={(e) => {
                             updateParameter(param.id, "value", e.target.value)
                           }
                           }
-                        >
-                        </input>
+                        />
                       </td>
                       <td>
                         <Trash2Icon color="red" size={18} onClick={() => {
@@ -191,7 +194,7 @@ function App() {
                       </td>
                     </tr>
                     <tr>
-                      {hasError && param.enabled && 
+                      {hasError && param.enabled &&
                         <>
                           <td></td>
                           <td> {!param.name && <p style={{ color: "red", marginTop: 0 }}> Fill this </p>}</td>
@@ -200,7 +203,7 @@ function App() {
                         </>
                       }
                     </tr>
-                  </>
+                  </React.Fragment>
                 )}
               </tbody>
             </table>

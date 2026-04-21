@@ -1,10 +1,10 @@
  
 import axios from "axios";
 
-export const generateToken = async (pnr:string, env:string, preset: "individual" | "officer" | "system",parameters: Record<string, string>, actAsPnr?: string ) => {
+export const generateToken = async (pnr:string, env:string, preset: "individual" | "officer" | "system",parameters: Record<string, string>, actAsPnr: string ) => {
 const req= {
   preset,
-  actAsPnr:actAsPnr||"",
+  actAsPnr:actAsPnr,
   nationalid: pnr,
   environment: env,
   "parameters": {
