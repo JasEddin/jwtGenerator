@@ -41,6 +41,7 @@ function App() {
   const [parameters, setParameters] = useState<Parameter[]>([]);
 
   const addParameter = () => {
+    setHasError(false)
     setParameters(
       (prev) => [
         ...prev, { id: Date.now(), name: "", value: "", enabled: true }
@@ -62,25 +63,29 @@ function App() {
     )
   }
 
-  const handleGenerate = async () => {
-    try {
-      if (!isValidPnr(pnr) || (preset === "officer" && actAs === "customer" && !isValidPnr(actAsPnr))) {
-        setHasError(true);
-      }
-      else {
-        const extraPatameters: Record<string, string> = {};
-        parameters
-          .filter(p => p.enabled)
-          .forEach((p) => { extraPatameters[p.name] = p.value }
-          )
-        const res = await generateToken(pnr, env, preset, extraPatameters, actAs === "customer" ? actAsPnr : undefined);
-        setResult(res);
-        setHasError(false);
-      }
-    } catch (err) {
-      setResult(null);
+  const checkIfThereIsError = () => {
+    if (!isValidPnr(pnr) || (preset === "officer" && actAs === "customer" && !isValidPnr(actAsPnr))) {
+      return true
     }
+    const x = parameters.filter(x => x.enabled).find(x => !x.name || !x.value);
+    return x ? true : false
+  }
+
+  const handleGenerate = async () => {
+
+    if (!checkIfThereIsError()) {
+      const extraPatameters: Record<string, string> = {};
+      parameters
+        .filter(p => p.enabled)
+        .forEach((p) => { extraPatameters[p.name] = p.value }
+        )
+      const res = await generateToken(pnr, env, preset, extraPatameters, actAs === "customer" ? actAsPnr : undefined);
+      setResult(res);
+      setHasError(false);
+    }
+    else { setHasError(true) }
   };
+
   function prettierToken(token: string, start = 5, end = 10): string {
     if (!token) return "";
     if (token.length <= start + end) return token;
@@ -145,46 +150,57 @@ function App() {
               </thead>
               <tbody>
                 {parameters.map((param) =>
-
-                  <tr key={param.id}>
-                    <td>
-                      <input type="checkbox"
-                        checked={param.enabled}
-                        onChange={
-                          () =>
-                            setParameters((prev) => prev.map(p =>
-                              p.id == param.id ? { ...p, enabled: !p.enabled } : p
-                            ))
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        placeholder="name"
-                        onChange={(e) => {
-                          updateParameter(param.id, "name", e.target.value)
-                        }
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        placeholder="value"
-                        onChange={(e) => {
-                          updateParameter(param.id, "value", e.target.value)
-                        }
-                        }
-                      >
-                      </input>
-                    </td>
-                    <td>
-                      <Trash2Icon color="red" size={18} onClick={() => {
-                        removeParameter(param.id)
-                      }} />
-                    </td>
-                  </tr>
+                  <>
+                    <tr key={param.id}>
+                      <td>
+                        <input type="checkbox"
+                          checked={param.enabled}
+                          onChange={
+                            () =>
+                              setParameters((prev) => prev.map(p =>
+                                p.id == param.id ? { ...p, enabled: !p.enabled } : p
+                              ))
+                          }
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          placeholder="name"
+                          onChange={(e) => {
+                            updateParameter(param.id, "name", e.target.value)
+                          }
+                          }
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          placeholder="value"
+                          onChange={(e) => {
+                            updateParameter(param.id, "value", e.target.value)
+                          }
+                          }
+                        >
+                        </input>
+                      </td>
+                      <td>
+                        <Trash2Icon color="red" size={18} onClick={() => {
+                          removeParameter(param.id)
+                        }} />
+                      </td>
+                    </tr>
+                    <tr>
+                      {hasError && param.enabled && 
+                        <>
+                          <td></td>
+                          <td> {!param.name && <p style={{ color: "red", marginTop: 0 }}> Fill this </p>}</td>
+                          <td> {!param.value && <p style={{ color: "red", marginTop: 0 }}> Fill this </p>}</td>
+                          <td></td>
+                        </>
+                      }
+                    </tr>
+                  </>
                 )}
               </tbody>
             </table>
