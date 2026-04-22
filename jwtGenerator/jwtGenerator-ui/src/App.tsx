@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { generateToken } from "./jwtService";
 import "./App.css";
-import { Copy, CircleFadingPlus, Trash2Icon } from "lucide-react";
+import { Copy,  Trash2Icon } from "lucide-react";
 import { isValidPnr } from "./validator";
 
 export type TokenResponse = {
@@ -64,7 +64,6 @@ function App() {
   }
 
   const hasGeneralError = () => {
-    debugger
     const hasInvalidParam = parameters.some(x => x.enabled && (!x.name || !x.value));
     if (hasInvalidParam || !isValidPnr(pnr) || (preset === "officer" && officerActAsCustomer && !isValidPnr(officerAsCustomerPnr))) {
       return true
@@ -141,74 +140,48 @@ function App() {
           }
           <hr />
           {
-            <table >
-              <thead>
-                <tr>
-                  <th>✓</th>
-                  <th>Name</th>
-                  <th>Value</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {parameters.map((param) =>
-                  <tr key={param.id} className="param-row">
-                    <td>
-                      <input
-                        type="checkbox"
-                        checked={param.enabled}
-                        onChange={() =>
-                          setParameters(prev =>
-                            prev.map(p =>
-                              p.id === param.id ? { ...p, enabled: !p.enabled } : p
-                            )
+            <div className="params">
+              {parameters.map((param) => (
+                <div key={param.id} className={`${param.enabled? "param-card" : "param-card_disabled"}`}>
+                  <div className="param-row">
+                    <input
+                      type="checkbox"
+                      checked={param.enabled}
+                      onChange={() =>
+                        setParameters(prev =>
+                          prev.map(p =>
+                            p.id === param.id ? { ...p, enabled: !p.enabled } : p
                           )
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        className={`input ${hasError && param.enabled && !param.name ? "error" : ""}`}
-                        type="text"
-                        value={param.name}
-                        placeholder="name"
-                        onChange={(e) => updateParameter(param.id, "name", e.target.value)}
-                      />
-                      {hasError && param.enabled && !param.name && (
-                        <span className="error-text">Required</span>
-                      )}
-                    </td>
-                    <td>
-                      <input
-                        className={`input ${hasError && param.enabled && !param.value ? "error" : ""}`}
-                        type="text"
-                        value={param.value}
-                        placeholder="value"
-                        onChange={(e) => updateParameter(param.id, "value", e.target.value)}
-                      />
-                      {hasError && param.enabled && !param.value && (
-                        <span className="error-text">Required</span>
-                      )}
-                    </td>
-                    <td>
-                      <Trash2Icon
-                        className="delete-icon"
-                        size={18}
-                        onClick={() => removeParameter(param.id)}
-                      />
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                        )
+                      }
+                    />
+                    <input
+                      className={`input_${hasError && param.enabled && !param.name ? "error" : ""}`}
+                      value={param.name}
+                 
+                    placeholder="name"
+                      onChange={(e) => updateParameter(param.id, "name", e.target.value)}
+                    />
+                    <input
+                      className={`input_${hasError && param.enabled && !param.value ? "error" : ""}`}
+                      value={param.value}
+                      placeholder="value"
+                      onChange={(e) => updateParameter(param.id, "value", e.target.value)}
+                    />
+                    <Trash2Icon
+                      className="delete-icon"
+                      size={17
+                      }
+                      onClick={() => removeParameter(param.id)}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
           }
-
-          <label>Lägg till valfri parameter:
-            <CircleFadingPlus className="btn-additional" color="green" size={20} onClick={() => {
-              addParameter()
-            }}
-            ></CircleFadingPlus>
-          </label>
+          <button className="add-btn" onClick={addParameter}>
+              Add parameter
+        </button>
           <button className="btn-primary" onClick={handleGenerate}>
             Generate token
           </button>
