@@ -15,10 +15,10 @@ public class TokenService
         var url = EnvironmentService.GetUrl(request.Environment);
 
         var formData = new Dictionary<string, string> {
-        { "clientid", "i_web_individual_short" },
-        { "client_secret", "mysecret" },
-        { "grant_type", "client_credentials" },
-        { "client_id", "i_mock_short" }};
+                                { "clientid", "i_web_individual_short" },
+                                { "client_secret", "mysecret" },
+                                { "grant_type", "client_credentials" },
+                                { "client_id", "i_mock_short" } };
 
         PresetHelper.GetPreset(request.Preset, request.ActAsPnr)
             .ToList()

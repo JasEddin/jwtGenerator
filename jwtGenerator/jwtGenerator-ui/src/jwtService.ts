@@ -8,11 +8,7 @@ const req= {
   nationalid: pnr,
   environment: env,
   "parameters": {
-  "clientid": "i_web_individual_short",
-  "client_secret": "mysecret",
-  "grant_type": "client_credentials",
   "sub": pnr,
-  "scope": "account_read system_read",
    ...parameters 
     }}
   const response = await axios.post("https://localhost:7050/api/JwtGenerator", req);
