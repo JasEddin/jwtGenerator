@@ -45,7 +45,7 @@
     padding: 10px 12px;
     border-radius: 8px;
     border: 1px solid #e5e7eb;
-    margin-bottom: 16px;
+    margin-bottom: 4px;
     font-size: 14px;
     background-color: #fafafa;
   }
@@ -204,6 +204,7 @@
     height: 16px;
     border-radius: 4px;
     cursor: pointer;
+    margin-left: 10px;
   }
 
   /* Delete icon */
@@ -212,9 +213,8 @@
     cursor: pointer;
     transition: 0.2s;
     padding: 0px;
-    margin-top: -85%;
+    margin-top: -40%;
     margin-left: 0px;
-
   }
 
   .delete-icon:hover {

@@ -41,7 +41,6 @@ function App() {
   const [parameters, setParameters] = useState<Parameter[]>([]);
 
   const addParameter = () => {
-    setHasError(false)
     setParameters(
       (prev) => [
         ...prev, { id: Date.now(), name: "", value: "", enabled: true }
