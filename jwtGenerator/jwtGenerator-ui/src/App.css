@@ -257,3 +257,22 @@
     cursor: pointer;
     font-weight: 500;
   }
+
+.param-removing {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+    height: auto;
+  }
+  to {
+    opacity: 0.1;
+    transform: scale(1.1) translateY(-20px);
+    height: 0;
+    margin: 0;
+    padding: 0;
+  }
+}

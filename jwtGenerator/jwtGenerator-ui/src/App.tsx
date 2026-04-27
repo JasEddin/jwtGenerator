@@ -27,6 +27,7 @@ type Parameter = {
   name: string;
   value: string;
   enabled: boolean;
+  delete?: boolean;
 }
 
 function App() {
@@ -43,15 +44,20 @@ function App() {
   const addParameter = () => {
     setParameters(
       (prev) => [
-        ...prev, { id: Date.now(), name: "", value: "", enabled: true }
+        ...prev, { id: Date.now(), name: "", value: "", enabled: true ,  delete: false }
       ]
     )
   }
 
   const removeParameter = (id: number) => {
     setParameters(
-      (prev) => prev.filter(x => x.id != id)
+      (prev) => prev.map(x => x.id === id ? { ...x, delete: true } : x)
     )
+    setTimeout(() => {
+      setParameters(
+        (prev) => prev.filter(x => x.id !== id)
+      )
+    }, 300)
   }
 
   const updateParameter = (id: number, field: "value" | "name", newValue: string) => {
@@ -141,7 +147,8 @@ function App() {
           {
             <div className="params">
               {parameters.map((param) => (
-                <div key={param.id} className={`${param.enabled? "param-card" : "param-card_disabled"}`}>
+                <div key={param.id} className={               
+                  `${param.delete ? "param-removing" : `${param.enabled ? "param-card" : "param-card_disabled"}`}`}>
                   <div className="param-row">
                     <input
                       type="checkbox"
