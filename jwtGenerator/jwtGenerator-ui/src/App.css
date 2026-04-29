@@ -177,7 +177,6 @@
   }
 
   .param-row {
-
     display: grid;
     grid-template-columns: 5px 1fr 1fr 20px;
     align-items: center;
